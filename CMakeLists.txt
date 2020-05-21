@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
+include(cmake/utils.cmake)
+project_guarded(ccore)
 project(ccore
     VERSION 1.0.0
     DESCRIPTION "Data structures and utilities library for C programmes"
