@@ -33,6 +33,7 @@ target_include_directories(
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # locations are provided by GNUInstallDirs
 install(TARGETS ${PROJECT_NAME}
