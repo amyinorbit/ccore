@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/utils.cmake)
 project_guarded(ccore)
 project(ccore
-    VERSION 1.0.0
+    VERSION 1.1.0
     DESCRIPTION "Data structures and utilities library for C programmes"
     HOMEPAGE_URL "https://github.com/amyinorbit/ccore"
     LANGUAGES C
@@ -17,6 +17,7 @@ STATIC
     src/queue.c
     src/table.c
     src/value.c
+    src/filesystem.c
 )
 
 # add alias so the project can be uses with add_subdirectory
