@@ -47,6 +47,15 @@ void cclist_insert_after(cclist_t *list, void *object, const void *item);
 /// Inserts [object] into [list] before [item].
 void cclist_insert_before(cclist_t *list, void *object, const void *item);
 
+/// Removes [object] from [list].
+void cclist_remove(cclist_t *list, void *object);
+
+/// Removes the first item from [list].
+void cclist_remove_first(cclist_t *list);
+
+/// Removes the last item from [list].
+void cclist_remove_last(cclist_t *list);
+
 /// Returns the first item in a list.
 void *cclist_first(const cclist_t *list);
 

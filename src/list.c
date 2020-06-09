@@ -94,6 +94,35 @@ void cclist_insert_before(cclist_t *list, void *object, const void *item) {
     cclist_do_insert_before(list, object, node);
 }
 
+void cclist_remove(cclist_t *list, void *object) {
+    CCASSERT(list);
+    CCASSERT(object);
+    cclist_node_t *node = get_node(object);
+
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    node->prev = node->next = NULL;
+    list->size -= 1;
+}
+
+void cclist_remove_first(cclist_t *list) {
+    CCASSERT(list);
+    if(!list->size) return;
+
+    list->head.next = list->head.next->next;
+    list->head.next->prev = &list->head;
+    list->size -= 1;
+}
+
+void cclist_remove_last(cclist_t *list) {
+    CCASSERT(list);
+    if(!list->size) return;
+
+    list->head.prev = list->head.prev->prev;
+    list->head.prev->next = &list->head;
+    list->size -= 1;
+}
+
 void *cclist_first(const cclist_t *list) {
     CCASSERT(list);
     if(list->head.next == &list->head) return NULL;

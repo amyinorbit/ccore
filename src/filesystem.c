@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h> // TODO: remove reliance on MingW, use windows.h API?
+#include <errno.h>
 
 static size_t path_component_length(const char *comp) {
     size_t length = strlen(comp);
@@ -47,7 +48,7 @@ size_t ccfs_path_concat(char *out, size_t size, ...) {
 }
 
 bool ccfs_path_exists(const char *path) {
-    return access(path, F_OK) != -1;
+    return access(path, F_OK) == 0;
 }
 
 void ccfs_path_rtrim_i(char *path, int num_dirs) {
@@ -60,4 +61,20 @@ void ccfs_path_rtrim_i(char *path, int num_dirs) {
         dirs += 1;
     }
     *(head+2) = '\0';
+}
+
+static const char *mode_string(ccfs_mode_t mode) {
+    switch(mode) {
+        case CCFS_READ: return "rb";
+        case CCFS_WRITE: return "wb";
+        case CCFS_APPEND: return "ab";
+    }
+}
+
+FILE* ccfs_file_open(const char *path, ccfs_mode_t mode) {
+    FILE* io = fopen(path, mode_string(mode));
+    if(!io) {
+        CCERROR("error opening `%s`: %s", path, strerror(errno));
+    }
+    return io;
 }
