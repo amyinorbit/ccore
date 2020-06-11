@@ -57,3 +57,7 @@ void cc_assert(bool expr, const char *readable, const char *file, const char *un
         abort();
     }
 }
+
+void cc_print(const char *str) {
+    log_printer(str);
+}
