@@ -21,6 +21,31 @@ static size_t path_component_length(const char *comp) {
     return length;
 }
 
+static inline bool is_path_sep(char c) {
+    return c == '\\' || c == '/';
+}
+
+static char *pathcpy(char *dest, const char *src, size_t n) {
+    CCASSERT(dest);
+    CCASSERT(src);
+
+    char *ret = dest;
+    while(n && *src) {
+        if(is_path_sep(*src)) {
+            *dest = CCFS_PATH_SEP;
+        } else {
+            *dest = *src;
+        }
+        dest += 1;
+        src += 1;
+        n -= 1;
+    }
+
+    while (n--)
+        *dest++ = 0;
+    return ret;
+}
+
 size_t ccfs_path_concat(char *out, size_t size, ...) {
     CCASSERT(out);
     size_t head = 0;
@@ -39,7 +64,7 @@ size_t ccfs_path_concat(char *out, size_t size, ...) {
         } else {
             out[head++] = CCFS_PATH_SEP;
         }
-        strncpy(out + head, comp, comp_length);
+        pathcpy(out + head, comp, comp_length);
         head += comp_length;
     }
     va_end(components);

@@ -15,12 +15,8 @@
 extern "C" {
 #endif
 
-#ifdef CCFS_USE_PLATORM_SEP
 #ifdef WIN32
 #define CCFS_PATH_SEP '\\'
-#else
-#define CCFS_PATH_SEP '/'
-#endif
 #else
 #define CCFS_PATH_SEP '/'
 #endif
