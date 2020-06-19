@@ -19,12 +19,15 @@ static inline int32_t max_i32(int32_t a, int32_t b) { return a > b ? a : b; }
 static inline int32_t min_i32(int32_t a, int32_t b) { return a < b ? a : b; }
 static inline float max_f32(float a, float b) { return a > b ? a : b; }
 static inline float min_f32(float a, float b) { return a < b ? a : b; }
-static inline int32_t clamp_i32(int32_t v, int32_t hi, int32_t lo)
-{ return (v < lo) ? lo : (hi < v) ? hi : v; }
-static inline int32_t clamp_u32(int32_t v, int32_t hi, int32_t lo)
-{ return (v < lo) ? lo : (hi < v) ? hi : v; }
-static inline float clamp_f32(float v, float hi, float lo)
-{ return (v < lo) ? lo : (hi < v) ? hi : v; }
+static inline uint32_t clamp_u32(uint32_t v, uint32_t min, uint32_t max) {
+    return v > min ? (v < max ? v : max) : min;
+}
+static inline int32_t clamp_i32(int32_t v, int32_t min, int32_t max) {
+    return v > min ? (v < max ? v : max) : min;
+}
+static inline float clamp_f32(float v, float min, float max) {
+    return v > min ? (v < max ? v : max) : min;
+}
 
 /// Returns the maximum of [a] and [b].
 #define max(a, b) _Generic((a), uint32_t: max_u32, int32_t: max_i32, float: max_f32)(a, b)
