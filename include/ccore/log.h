@@ -24,10 +24,9 @@ extern "C" {
 
 #else
 
-#define VA_ARGS(...) , ##__VA_ARGS__
-#define CCINFO(fmt, ...) cc_log(LOG_INFO, __FUNCTION__, __LINE__, fmt VA_ARGS(__VA_ARGS__))
-#define CCWARN(fmt, ...) cc_log(LOG_WARN, __FUNCTION__, __LINE__, fmt VA_ARGS(__VA_ARGS__))
-#define CCERROR(fmt, ...) cc_log(LOG_ERROR, __FUNCTION__, __LINE__, fmt VA_ARGS(__VA_ARGS__))
+#define CCINFO(...) cc_log(LOG_INFO, __VA_ARGS__)
+#define CCWARN(...) cc_log(LOG_WARN, __VA_ARGS__)
+#define CCERROR(...) cc_log(LOG_ERROR, __VA_ARGS__)
 
 #define CCASSERT(expr) cc_assert(expr, #expr, __FILE__, __FUNCTION__, __LINE__)
 
@@ -47,7 +46,7 @@ typedef enum log_level_e {
 void cc_set_printer(void (*handler)(const char *));
 
 /// Prints a log message at [level], in function [unit] at [line].
-void cc_log(log_level_t level, const char *unit, int line, const char *fmt, ...);
+void cc_log(log_level_t level, const char *fmt, ...);
 void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line);
 void cc_print(const char *str);
 

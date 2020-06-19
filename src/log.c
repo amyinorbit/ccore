@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <ccore/math.h>
 
 
 static void default_printer(const char *str) {
@@ -31,7 +32,7 @@ void cc_set_printer(void (*printer)(const char *)) {
     log_printer = printer;
 }
 
-void cc_log(log_level_t level, const char *unit, int line, const char *fmt, ...) {
+void cc_log(log_level_t level, const char *fmt, ...) {
     if(level < LOG_LEVEL) return;
 
     static pthread_mutex_t stream_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -39,7 +40,7 @@ void cc_log(log_level_t level, const char *unit, int line, const char *fmt, ...)
     pthread_mutex_lock(&stream_mutex);
 
     char buffer[512];
-    snprintf(buffer, 512, "[uns:%s] /%s/ ", unit, level_string(level));
+    snprintf(buffer, 512, "[%s] ", level_string(level));
     log_printer(buffer);
 
     va_list args;
