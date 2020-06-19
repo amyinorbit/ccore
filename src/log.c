@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <ccore/math.h>
-
+#include <ccore/debug.h>
 
 static void default_printer(const char *str) {
     fprintf(stderr, "%s", str);
@@ -55,6 +55,7 @@ void cc_log(log_level_t level, const char *fmt, ...) {
 void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line) {
     if(!expr) {
         cc_log(LOG_ERROR, unit, line, "assertion `%s` failed\n(%s:%03d)", readable, file, line);
+        cc_print_stack();
         abort();
     }
 }
