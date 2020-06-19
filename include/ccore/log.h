@@ -49,6 +49,7 @@ void cc_set_printer(void (*handler)(const char *));
 void cc_log(log_level_t level, const char *fmt, ...);
 void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line);
 void cc_print(const char *str);
+void cc_printf(const char *str, ...);
 
 #ifdef __cplusplus
 } /* extern "C" */
