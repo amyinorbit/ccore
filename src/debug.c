@@ -103,7 +103,6 @@ void cc_print_stack() {
 void cc_print_stack() {
     void *addresses[MAX_STACK_DEPTH];
     int size = backtrace(addresses, MAX_STACK_DEPTH);
-    backtrace_symbols_fd(addresses, size, STDERR_FILENO);
     char **symbols = backtrace_symbols(addresses, size);
     cc_print("=== stack trace ===\n");
 
@@ -112,8 +111,8 @@ void cc_print_stack() {
         snprintf(line, 1024, "%02d: %s\n", i, symbols[i]);
         cc_print(line);
     }
-
     free(symbols);
+    cc_print("\n");
 }
 
 #endif
