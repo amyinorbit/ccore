@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/utils.cmake)
 project_guarded(ccore)
 project(ccore
-    VERSION 1.2.1
+    VERSION 1.3.0
     DESCRIPTION "Data structures and utilities library for C programmes"
     HOMEPAGE_URL "https://github.com/amyinorbit/ccore"
     LANGUAGES C
@@ -30,7 +30,7 @@ include(CMakePackageConfigHelpers)
 include(CPack)
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC DbgHelp)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 endif()
 
 # Adding the install interface generator expression makes sure that the include

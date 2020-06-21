@@ -72,7 +72,7 @@ void cc_print_stack() {
     #define MAX_BACKTRACE_LINE (MAX_SYM_NAME + 20)
     char line[MAX_BACKTRACE_LINE];
 
-    cc_printf("=== stack trace ===\n");
+    cc_print("=== stack trace ===\n");
     for (size_t i = 0; i < 25; i++) {
         BOOL result = StackWalk64(
             image, process, thread,

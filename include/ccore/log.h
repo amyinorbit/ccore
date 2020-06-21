@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 #define CCUNREACHABLE() (__builtin_unreachable())
+#define CCUNUSED(v) ((void)(v))
 
 typedef enum log_level_e {
     LOG_INFO, LOG_WARN, LOG_ERROR
