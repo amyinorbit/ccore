@@ -13,16 +13,16 @@
 #include <unistd.h> // TODO: remove reliance on MingW, use windows.h API?
 #include <errno.h>
 
+static inline bool is_path_sep(char c) {
+    return c == '\\' || c == '/';
+}
+
 static size_t path_component_length(const char *comp) {
     size_t length = strlen(comp);
-    while(length && comp[length-1] == CCFS_PATH_SEP) {
+    while(length && is_path_sep(comp[length-1])) {
         length -= 1;
     }
     return length;
-}
-
-static inline bool is_path_sep(char c) {
-    return c == '\\' || c == '/';
 }
 
 static char *pathcpy(char *dest, const char *src, size_t n) {
@@ -82,7 +82,7 @@ void ccfs_path_rtrim_i(char *path, int num_dirs) {
 
     for(int dirs = 0; dirs < num_dirs+1 && head != path; --head) {
         char c = *head;
-        if(c != '\\' && c != CCFS_PATH_SEP) continue;
+        if(!is_path_sep(c)) continue;
         dirs += 1;
     }
     *(head+2) = '\0';
