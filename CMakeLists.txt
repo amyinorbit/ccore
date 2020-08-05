@@ -17,6 +17,7 @@ STATIC
     src/table.c
     src/value.c
     src/filesystem.c
+    src/msg_queue.c
     src/debug.c
 )
 
