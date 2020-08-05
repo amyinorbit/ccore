@@ -22,9 +22,9 @@ extern "C" {
 typedef struct ccmsg_s {
     uint8_t kind;
     union {
-        char character;
-        int32_t int_value;
-        float float_value;
+        int32_t i32;
+        uint32_t u32;
+        float f32;
         char str[4];
     };
 } ccmsg_t;

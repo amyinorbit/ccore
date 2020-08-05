@@ -22,6 +22,15 @@ typedef struct object_s object_t;
 typedef struct value_s {
     enum { VALUE_NIL, VALUE_BOOL, VALUE_INT, VALUE_FLOAT, VALUE_STRING, VALUE_REF } kind;
     union {
+        // TODO: move to new names:
+        // uint32_t u32;
+        // int32_t i32;
+        // uint64_t u64;
+        // int64_t i64;
+        // float f32;
+        // double f64;
+        // const void *ptr;
+
         int64_t int_val;
         double float_val;
         const char *str_val;

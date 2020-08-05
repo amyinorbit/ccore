@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/utils.cmake)
 project_guarded(ccore)
 project(ccore
-    VERSION 1.3.1
+    VERSION 1.4.0
     DESCRIPTION "Data structures and utilities library for C programmes"
     HOMEPAGE_URL "https://github.com/amyinorbit/ccore"
     LANGUAGES C
@@ -14,7 +14,6 @@ STATIC
     src/list.c
     src/log.c
     src/memory.c
-    src/queue.c
     src/table.c
     src/value.c
     src/filesystem.c
