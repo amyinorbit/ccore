@@ -37,7 +37,7 @@ bool ccqueue_push(ccqueue_t *q, ccmsg_t event) {
     return true;
 }
 
-bool ccqueue_wait(ccqueue_t *q, ccmsg_t *msg) {
+bool ccqueue_pull(ccqueue_t *q, ccmsg_t *msg) {
     CCASSERT(q);
     CCASSERT(msg);
     if(q->head == q->tail) return false;
