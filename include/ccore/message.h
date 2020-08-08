@@ -22,6 +22,8 @@ extern "C" {
 typedef struct ccmsg_s {
     uint8_t kind;
     union {
+        int64_t i64;
+        uint64_t u64;
         int32_t i32;
         uint32_t u32;
         float f32;
