@@ -54,7 +54,7 @@ void cc_log(log_level_t level, const char *fmt, ...) {
 
 void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line) {
     if(!expr) {
-        cc_log(LOG_ERROR, unit, line, "assertion `%s` failed\n(%s:%03d)", readable, file, line);
+        cc_log(LOG_ERROR, "assertion `%s` failed\n(%s:%03d, %s)", readable, file, line, unit);
         cc_print_stack();
         abort();
     }
