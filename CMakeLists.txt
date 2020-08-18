@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/utils.cmake)
 project_guarded(ccore)
 project(ccore
-    VERSION 1.5.1
+    VERSION 1.6.0
     DESCRIPTION "Data structures and utilities library for C programmes"
     HOMEPAGE_URL "https://github.com/amyinorbit/ccore"
     LANGUAGES C
 )
+
+find_package(Threads REQUIRED)
 
 add_library(${PROJECT_NAME}
 STATIC
@@ -18,6 +20,7 @@ STATIC
     src/value.c
     src/filesystem.c
     src/debug.c
+    src/tpool.c
 )
 
 # add alias so the project can be uses with add_subdirectory
@@ -31,6 +34,7 @@ include(CPack)
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 endif()
+target_link_libraries(${PROJECT_NAME} m pthread)
 
 # Adding the install interface generator expression makes sure that the include
 # files are installed to the proper location (provided by GNUInstallDirs)
@@ -69,3 +73,6 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
+
+
+add_subdirectory(demo)

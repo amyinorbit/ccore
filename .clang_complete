@@ -1,1 +1,4 @@
 -Iinclude
+-Wall
+-Wextra
+-Wpedantic
