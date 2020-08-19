@@ -29,7 +29,6 @@ static void *pool_worker(void *refcon) {
         cclist_remove_first(&pool->tasks);
 
         pool->in_work += 1;
-        CCINFO("task %p [start]", task);
         pthread_mutex_unlock(&pool->mt);
 
         CCASSERT(task);
@@ -39,7 +38,6 @@ static void *pool_worker(void *refcon) {
         cc_free(task);
 
         pthread_mutex_lock(&pool->mt);
-        CCINFO("task %p [done]", task);
         pool->in_work -= 1;
         pthread_cond_signal(&pool->idle_cv);
         pthread_mutex_unlock(&pool->mt);

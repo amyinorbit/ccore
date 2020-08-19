@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <ccore/math.h>
 #include <ccore/debug.h>
+static pthread_mutex_t stream_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void default_printer(const char *str) {
     fprintf(stderr, "%s", str);
@@ -32,15 +33,12 @@ void cc_set_printer(void (*printer)(const char *)) {
     log_printer = printer;
 }
 
-void cc_log(log_level_t level, const char *fmt, ...) {
+void cc_log(log_level_t level, const char *function, const char *fmt, ...) {
     if(level < LOG_LEVEL) return;
-
-    static pthread_mutex_t stream_mutex = PTHREAD_MUTEX_INITIALIZER;
-
     pthread_mutex_lock(&stream_mutex);
 
     char buffer[512];
-    snprintf(buffer, 512, "[%s] ", level_string(level));
+    snprintf(buffer, 512, "[%s::%s] ", function, level_string(level));
     log_printer(buffer);
 
     va_list args;
@@ -54,12 +52,14 @@ void cc_log(log_level_t level, const char *fmt, ...) {
 
 void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line) {
     if(!expr) {
-        cc_log(LOG_ERROR, "assertion `%s` failed\n(%s:%03d, %s)", readable, file, line, unit);
+        cc_log(LOG_ERROR, unit, "assertion `%s` failed\n(%s:%03d)", readable, file, line);
         cc_print_stack();
         abort();
     }
 }
 
 void cc_print(const char *str) {
+    pthread_mutex_lock(&stream_mutex);
     log_printer(str);
+    pthread_mutex_unlock(&stream_mutex);
 }
