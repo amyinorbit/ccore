@@ -22,6 +22,7 @@ static void (*log_printer)(const char *) = default_printer;
 
 static const char *level_string(log_level_t level) {
     switch(level) {
+        case LOG_DEBUG: return "debug";
         case LOG_INFO: return "info";
         case LOG_WARN: return "warning";
         case LOG_ERROR: return "error";
@@ -38,7 +39,7 @@ void cc_log(log_level_t level, const char *function, const char *fmt, ...) {
     pthread_mutex_lock(&stream_mutex);
 
     char buffer[512];
-    snprintf(buffer, 512, "[%s::%s] ", function, level_string(level));
+    snprintf(buffer, 512, "[%s(_)/%s] ", function, level_string(level));
     log_printer(buffer);
 
     va_list args;
