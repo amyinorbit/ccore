@@ -42,11 +42,12 @@ typedef enum log_level_e {
 } log_level_t;
 
 #ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_INFO
+#define LOG_LEVEL LOG_DEBUG
 #endif
 
 /// Sets the function used to print log messages. Defaults to fprintf(stderr, ...).
 void cc_set_printer(void (*handler)(const char *));
+void cc_set_log_name(const char *name);
 
 /// Prints a log message at [level], in function [unit] at [line].
 void cc_log(log_level_t level, const char *function, const char *fmt, ...);

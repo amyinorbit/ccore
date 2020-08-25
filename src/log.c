@@ -19,6 +19,7 @@ static void default_printer(const char *str) {
 }
 
 static void (*log_printer)(const char *) = default_printer;
+static const char *log_name = "ccore";
 
 static const char *level_string(log_level_t level) {
     switch(level) {
@@ -30,6 +31,10 @@ static const char *level_string(log_level_t level) {
     return "<invalid>";
 }
 
+void cc_set_log_name(const char *name) {
+    log_name = name;
+}
+
 void cc_set_printer(void (*printer)(const char *)) {
     log_printer = printer;
 }
@@ -39,7 +44,7 @@ void cc_log(log_level_t level, const char *function, const char *fmt, ...) {
     pthread_mutex_lock(&stream_mutex);
 
     char buffer[512];
-    snprintf(buffer, 512, "[%s(_)/%s] ", function, level_string(level));
+    snprintf(buffer, 512, "[%s %s] %s(): ", log_name, level_string(level), function);
     log_printer(buffer);
 
     va_list args;
