@@ -32,8 +32,13 @@ bool ccfs_path_exists(const char *path);
 /// Trims [path] in place by [num_dirs] path components.
 void ccfs_path_rtrim_i(char *path, int num_dirs);
 
-/// Attemts to open [path] using [mode].
+/// Attempts to open [path] using [mode].
 FILE* ccfs_file_open(const char *path, ccfs_mode_t mode);
+
+/// Reads the contents of a file, and sets the number of bytes read
+void *ccfs_file_read(FILE* file, size_t *size);
+
+void *ccfs_path_read(const char *path, size_t *size);
 
 #ifdef __cplusplus
 } /* extern "C" */

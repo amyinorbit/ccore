@@ -8,10 +8,12 @@
 //===--------------------------------------------------------------------------------------------===
 #include <ccore/filesystem.h>
 #include <ccore/log.h>
+#include <ccore/memory.h>
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h> // TODO: remove reliance on MingW, use windows.h API?
 #include <errno.h>
+#include <stdint.h>
 
 static inline bool is_path_sep(char c) {
     return c == '\\' || c == '/';
@@ -102,4 +104,25 @@ FILE* ccfs_file_open(const char *path, ccfs_mode_t mode) {
         CCERROR("error opening `%s`: %s", path, strerror(errno));
     }
     return io;
+}
+
+void *ccfs_file_read(FILE* file, size_t *size) {
+    CCASSERT(file);
+    CCASSERT(size);
+    *size = 0;
+    fseek(file, 0, SEEK_END);
+    *size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    uint8_t *data = cc_alloc(*size + 1); // For text files, we always write a null byte at the end
+    fread(data, 1, *size, file);
+    data[*size] = 0x00;
+    return data;
+}
+
+void *ccfs_path_read(const char *path, size_t *size) {
+    FILE *f = ccfs_file_open(path, CCFS_READ);
+    if(!f) return NULL;
+    void *data = ccfs_file_read(f, size);
+    fclose(f);
+    return data;
 }
