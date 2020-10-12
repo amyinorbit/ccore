@@ -8,10 +8,8 @@
 //===--------------------------------------------------------------------------------------------===
 #include <ccore/log.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
 #include <ccore/math.h>
-#include <ccore/debug.h>
 static pthread_mutex_t stream_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void default_printer(const char *str) {
@@ -56,13 +54,13 @@ void cc_log(log_level_t level, const char *function, const char *fmt, ...) {
     pthread_mutex_unlock(&stream_mutex);
 }
 
-void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line) {
-    if(!expr) {
-        cc_log(LOG_ERROR, unit, "assertion `%s` failed\n(%s:%03d)", readable, file, line);
-        cc_print_stack();
-        abort();
-    }
-}
+// void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line) {
+//     if(!expr) {
+//         cc_log(LOG_ERROR, unit, "assertion `%s` failed\n(%s:%03d)", readable, file, line);
+//         cc_print_stack();
+//         abort();
+//     }
+// }
 
 void cc_print(const char *str) {
     pthread_mutex_lock(&stream_mutex);

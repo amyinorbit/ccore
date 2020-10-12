@@ -9,6 +9,8 @@
 #pragma once
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <ccore/debug.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +27,13 @@ extern "C" {
 
 #else
 #define CCDEBUG(...) cc_log(LOG_DEBUG, __FUNCTION__, __VA_ARGS__)
-#define CCASSERT(expr) cc_assert(expr, #expr, __FILE__, __FUNCTION__, __LINE__)
+#define CCASSERT(expr) do { \
+    if(!(expr)) { \
+        CCERROR("assertion `" #expr "` failed\n(%s:%03d)", __FILE__, __LINE__); \
+        cc_print_stack(); \
+        abort(); \
+    } \
+} while(0)
 #endif
 
 #define CCINFO(...) cc_log(LOG_INFO, __FUNCTION__, __VA_ARGS__)
@@ -51,7 +59,7 @@ void cc_set_log_name(const char *name);
 
 /// Prints a log message at [level], in function [unit] at [line].
 void cc_log(log_level_t level, const char *function, const char *fmt, ...);
-void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line);
+// void cc_assert(bool expr, const char *readable, const char *file, const char *unit, int line);
 void cc_print(const char *str);
 void cc_printf(const char *str, ...);
 
