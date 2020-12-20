@@ -17,7 +17,7 @@ extern "C" {
 /// The idea is that we can decouple systems through the use of events and the
 /// message box/memory slots.
 ///
-/// We want events to be small. At the moment, it should be 64 bits,
+/// We want events to be small. At the moment, it should be 128 bits,
 /// which means it can be passed as value pretty much anywhere we're running on 64-bit platroms.
 typedef struct ccmsg_s {
     uint8_t kind;
