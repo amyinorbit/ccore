@@ -19,14 +19,11 @@ extern "C" {
 #ifdef NDEBUG
 
 #define CCDEBUG(fmt, ...)
-#define CCINFO(fmt, ...)
-#define CCWARN(fmt, ...)
-#define CCERROR(fmt, ...)
 
 #define CCASSERT(expr)
 
 #else
-#define CCDEBUG(...) cc_log(LOG_DEBUG, __FUNCTION__, __VA_ARGS__)
+#define CCDEBUG(...) cc_log(LOG_DEBUG, __func__, __VA_ARGS__)
 #define CCASSERT(expr) do { \
     if(!(expr)) { \
         CCERROR("assertion `" #expr "` failed\n(%s:%03d)", __FILE__, __LINE__); \
@@ -36,9 +33,9 @@ extern "C" {
 } while(0)
 #endif
 
-#define CCINFO(...) cc_log(LOG_INFO, __FUNCTION__, __VA_ARGS__)
-#define CCWARN(...) cc_log(LOG_WARN, __FUNCTION__, __VA_ARGS__)
-#define CCERROR(...) cc_log(LOG_ERROR, __FUNCTION__, __VA_ARGS__)
+#define CCINFO(...) cc_log(LOG_INFO, __func__, __VA_ARGS__)
+#define CCWARN(...) cc_log(LOG_WARN, __func__, __VA_ARGS__)
+#define CCERROR(...) cc_log(LOG_ERROR, __func__, __VA_ARGS__)
 
 
 
