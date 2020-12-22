@@ -10,9 +10,12 @@
 #include <math.h>
 #include <stdint.h>
 #include <float.h>
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CC_ROUNDING_ERROR (1e-10)
 
 static inline uint32_t max_u32(uint32_t a, uint32_t b) { return a > b ? a : b; }
 static inline uint32_t min_u32(uint32_t a, uint32_t b) { return a < b ? a : b; }
@@ -45,143 +48,137 @@ static inline double lerp_f64(double a, double b, double t) { return a*(1.0-t) +
 /// Clamps [v] to the range [hi, lo]
 #define clamp(v, a, b) _Generic((v), uint32_t: clamp_u32, int32_t: clamp_i32, float: clamp_f32)(v, a, b)
 
-static inline void vec3f_copy(const float v[3], float out[3]) {
-    out[0] = v[0]; out[1] = v[1]; out[2] = v[2];
+typedef union {
+    struct { double x, y; };
+    double data[2];
+} vec2_t;
+
+typedef union {
+    vec2_t xy;
+    struct { double x, y, z; };
+    double data[3];
+} vec3_t;
+
+#define CC_VEC2(xx, yy) ((vec2_t){.x = (xx), .y = (yy)})
+
+#define CC_VEC3_2(xy) ((vec3_t){.x = (xy).x, .y = (xy).y, .z = 0})
+#define CC_VEC3(xx, yy, zz) ((vec3_t){.x = (xx), .y = (yy), .z = (zz)})
+
+#define CC_VEC2_NULL CC_VEC2(NAN, NAN)
+#define CC_VEC3_NULL CC_VEC3(NAN, NAN, NAN)
+
+#define CC_VEC_IS_NULL(b) (isnan((v).x))
+
+unsigned vec3_int_sph(vec3_t o, vec3_t v, vec3_t c, double r, bool confined, vec3_t out[2]);
+vec2_t vec2_int_vec2(vec2_t o1, vec2_t v1, vec2_t o2, vec2_t v2);
+
+static inline double vec3_dot(vec3_t a, vec3_t b) {
+    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
-static inline void vec3d_copy(const double v[3], double out[3]) {
-    out[0] = v[0]; out[1] = v[1]; out[2] = v[2];
+static inline vec3_t vec3_cross(vec3_t a, vec3_t b) {
+    return CC_VEC3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 }
 
-static inline float vec3f_dot(const float a[3], const float b[3]) {
-    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+static inline double vec3_sqmag(vec3_t a) {
+    return a.x*a.x + a.y*a.y + a.z*a.z;
 }
 
-static inline double vec3d_dot(const double a[3], const double b[3]) {
-    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+static inline double vec3_mag(vec3_t a) {
+    return sqrt(vec3_sqmag(a));
 }
 
-static inline void vec3f_cross(const float a[3], const float b[3], float out[3]) {
-    out[0] = a[1]*b[2] - a[2]*b[1];
-    out[1] = a[2]*b[0] - a[0]*b[2];
-    out[2] = a[0]*b[1] - a[1]*b[0];
+static inline vec3_t vec3_add(vec3_t a, vec3_t b) {
+    return CC_VEC3(a.x+b.x, a.y+b.y, a.z+b.z);
 }
 
-static inline void vec3d_cross(const double a[3], const double b[3], double out[3]) {
-    out[0] = a[1]*b[2] - a[2]*b[1];
-    out[1] = a[2]*b[0] - a[0]*b[2];
-    out[2] = a[0]*b[1] - a[1]*b[0];
+static inline vec3_t vec3_sub(vec3_t a, vec3_t b) {
+    return CC_VEC3(a.x-b.x, a.y-b.y, a.z-b.z);
 }
 
-static inline float vec3f_mag(const float a[3]) {
-    return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+static inline vec3_t vec3_mul(vec3_t a, double b) {
+    return CC_VEC3(a.x*b, a.y*b, a.z*b);
 }
 
-static inline float vec3d_mag(const double a[3]) {
-    return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+static inline vec3_t vec3_div(vec3_t a, double b) {
+    return CC_VEC3(a.x/b, a.y/b, a.z/b);
 }
 
-static inline void vec3f_unit(const float v[3], float out[3]) {
-    float m = vec3f_mag(v);
-    if(m == 0 || fabsf(m) < 5 * FLT_EPSILON) return;
-    out[0] = v[0]/m;
-    out[1] = v[1]/m;
-    out[2] = v[2]/m;
+static inline vec3_t vec3_unit(vec3_t v) {
+    double m = vec3_mag(v);
+    if(m == 0 || fabs(m) < 5 * DBL_EPSILON) return v;
+    return vec3_div(v, m);
 }
 
-static inline void vec3f_unit_inplace(float v[3]) {
-    float m = vec3f_mag(v);
-    if(m == 0 || fabsf(m) < 5 * FLT_EPSILON) return;
-    v[0] /= m;
-    v[1] /= m;
-    v[2] /= m;
+static inline vec3_t vec3_lerp(vec3_t a, vec3_t b, double t) {
+    return CC_VEC3(
+        lerp_f64(a.x, b.x, t),
+        lerp_f64(a.y, b.y, t),
+        lerp_f64(a.z, b.z, t)
+    );
 }
 
-static inline void vec3d_unit(const double v[3], double out[3]) {
-    double m = vec3d_mag(v);
-    if(m == 0 || fabs(m) < 5 * DBL_EPSILON) return;
-    out[0] = v[0]/m;
-    out[1] = v[1]/m;
-    out[2] = v[2]/m;
+static inline double vec3_angle(vec3_t a, vec3_t b) {
+    return acos(vec3_dot(a, b) / (vec3_mag(a) * vec3_mag(b)));
 }
 
-static inline void vec3d_unit_inplace(double v[3]) {
-    double m = vec3d_mag(v);
-    if(m == 0 || fabs(m) < 5 * DBL_EPSILON) return;
-    v[0] /= m;
-    v[1] /= m;
-    v[2] /= m;
+static inline vec2_t vec2_hdg_mag(double hdg, double mag) {
+    return CC_VEC2(mag * sin(hdg), mag * cos(hdg));
 }
 
-static inline void vec3f_add(float a[3], const float b[3]) {
-    a[0] += b[0];
-    a[1] += b[1];
-    a[2] += b[2];
+static inline double vec2_dot(vec2_t a, vec2_t b) {
+    return a.x*b.x + a.y*b.y;
 }
 
-static inline void vec3d_add(double a[3], const double b[3]) {
-    a[0] += b[0];
-    a[1] += b[1];
-    a[2] += b[2];
+static inline double vec2_pdot(vec2_t a, vec2_t b) {
+    return a.x*b.y - a.y*b.x;
 }
 
-static inline void vec3f_sub(float a[3], const float b[3]) {
-    a[0] -= b[0];
-    a[1] -= b[1];
-    a[2] -= b[2];
+static inline vec2_t vec2_neg(vec2_t v) {
+    return CC_VEC2(-v.x, -v.y);
 }
 
-static inline void vec3d_sub(double a[3], const double b[3]) {
-    a[0] -= b[0];
-    a[1] -= b[1];
-    a[2] -= b[2];
+static inline double vec2_sqmag(vec2_t a) {
+    return a.x*a.x + a.y*a.y;
 }
 
-static inline void vec3f_mul(float v[3], float m) {
-    v[0] *= m;
-    v[1] *= m;
-    v[2] *= m;
+static inline double vec2_mag(vec2_t a) {
+    return sqrt(vec2_sqmag(a));
 }
 
-
-static inline void vec3d_mul(double v[3], double m) {
-    v[0] *= m;
-    v[1] *= m;
-    v[2] *= m;
+static inline vec2_t vec2_add(vec2_t a, vec2_t b) {
+    return CC_VEC2(a.x+b.x, a.y+b.y);
 }
 
-static inline void vec3f_div(float v[3], float m) {
-    v[0] /= m;
-    v[1] /= m;
-    v[2] /= m;
+static inline vec2_t vec2_sub(vec2_t a, vec2_t b) {
+    return CC_VEC2(a.x-b.x, a.y-b.y);
 }
 
-
-static inline void vec3d_div(double v[3], double m) {
-    v[0] /= m;
-    v[1] /= m;
-    v[2] /= m;
+static inline vec2_t vec2_mul(vec2_t a, double b) {
+    return CC_VEC2(a.x*b, a.y*b);
 }
 
-static inline void vec3f_lerp(const float a[3], const float b[3], float t, float out[3]) {
-    out[0] = lerp_f32(a[0], b[0], t);
-    out[1] = lerp_f32(a[1], b[1], t);
-    out[2] = lerp_f32(a[2], b[2], t);
+static inline vec2_t vec2_div(vec2_t a, double b) {
+    return CC_VEC2(a.x/b, a.y/b);
 }
 
-static inline void vec3d_lerp(const double a[3], const double b[3], double t, double out[3]) {
-    out[0] = lerp_f64(a[0], b[0], t);
-    out[1] = lerp_f64(a[1], b[1], t);
-    out[2] = lerp_f64(a[2], b[2], t);
+static inline vec2_t vec2_unit(vec2_t v) {
+    double m = vec2_mag(v);
+    if(m == 0 || fabs(m) < 5 * DBL_EPSILON) return v;
+    return vec2_div(v, m);
 }
 
-static inline float vec3f_angle(const float a[3], const float b[3]) {
-    return acos(vec3f_dot(a, b) / (vec3f_mag(a) * vec3f_mag(b)));
+static inline vec2_t vec2_lerp(vec2_t a, vec2_t b, double t) {
+    return CC_VEC2(
+        lerp_f64(a.x, b.x, t),
+        lerp_f64(a.y, b.y, t)
+    );
 }
 
-static inline double vec3d_angle(const double a[3], const double b[3]) {
-    return acos(vec3d_dot(a, b) / (vec3d_mag(a) * vec3d_mag(b)));
+static inline double vec2_angle(vec2_t a, vec2_t b) {
+    return acos(vec2_dot(a, b) / (vec2_mag(a) * vec2_mag(b)));
 }
+
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -2,11 +2,14 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/utils.cmake)
 project_guarded(ccore)
 project(ccore
-    VERSION 1.9.0
+    VERSION 1.11.0
     DESCRIPTION "Data structures and utilities library for C programmes"
     HOMEPAGE_URL "https://github.com/amyinorbit/ccore"
     LANGUAGES C
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+option(CCORE_BUILD_DEMO "Build ccore executable demo" ON)
 
 find_package(Threads REQUIRED)
 
@@ -15,6 +18,7 @@ STATIC
     src/format.c
     src/list.c
     src/log.c
+    src/math.c
     src/memory.c
     src/table.c
     src/value.c
@@ -75,5 +79,7 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
 
+if(CCORE_BUILD_DEMO)
+    add_subdirectory(demo)
+endif()
 
-add_subdirectory(demo)
