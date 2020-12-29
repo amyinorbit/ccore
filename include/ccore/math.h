@@ -67,7 +67,7 @@ typedef union {
 #define CC_VEC2_NULL CC_VEC2(NAN, NAN)
 #define CC_VEC3_NULL CC_VEC3(NAN, NAN, NAN)
 
-#define CC_VEC_IS_NULL(b) (isnan((v).x))
+#define CC_VEC_IS_NULL(v) (isnan((v).x))
 
 unsigned vec3_int_sph(vec3_t o, vec3_t v, vec3_t c, double r, bool confined, vec3_t out[2]);
 vec2_t vec2_int_vec2(vec2_t o1, vec2_t v1, vec2_t o2, vec2_t v2);

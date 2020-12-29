@@ -28,6 +28,7 @@ typedef struct ccmsg_s {
         uint32_t u32;
         float f32;
         char str[4];
+        void *ptr;
     };
 } ccmsg_t;
 
