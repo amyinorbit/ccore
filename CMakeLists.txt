@@ -49,7 +49,12 @@ target_include_directories(
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(${PROJECT_NAME}
+PROPERTIES
+    C_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    POSITION_INDEPENDENT_CODE ON
+)
 
 # locations are provided by GNUInstallDirs
 install(TARGETS ${PROJECT_NAME}
@@ -82,4 +87,3 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION incl
 if(CCORE_BUILD_DEMO)
     add_subdirectory(demo)
 endif()
-
