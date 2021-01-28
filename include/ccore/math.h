@@ -40,13 +40,13 @@ static inline float lerp_f32(float a, float b, float t) { return a*(1.f-t) + b*t
 static inline double lerp_f64(double a, double b, double t) { return a*(1.0-t) + b*t; }
 
 /// Returns the maximum of [a] and [b].
-#define max(a, b) _Generic((a), uint32_t: max_u32, int32_t: max_i32, float: max_f32)(a, b)
+#define cc_max(a, b) _Generic((a), uint32_t: max_u32, int32_t: max_i32, float: max_f32)(a, b)
 
 /// Returns the minimum of [a] and [b].
-#define min(a, b) _Generic((a), uint32_t: min_u32, int32_t: min_i32, float: min_f32)(a, b)
+#define cc_min(a, b) _Generic((a), uint32_t: min_u32, int32_t: min_i32, float: min_f32)(a, b)
 
 /// Clamps [v] to the range [hi, lo]
-#define clamp(v, a, b) _Generic((v), uint32_t: clamp_u32, int32_t: clamp_i32, float: clamp_f32)(v, a, b)
+#define cc_clamp(v, a, b) _Generic((v), uint32_t: clamp_u32, int32_t: clamp_i32, float: clamp_f32)(v, a, b)
 
 typedef union {
     struct { double x, y; };
