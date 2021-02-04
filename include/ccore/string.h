@@ -7,8 +7,9 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #pragma once
-#include <string.h>
 #include <ccore/log.h>
+#include <ccore/memory.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +63,15 @@ string_copy(char *restrict dest, const char *restrict src, size_t cap)
 	memcpy(dest, src, MIN(cap - 1, l + 1));
 	/* Insure the string is ALWAYS terminated */
 	dest[cap - 1] = '\0';
+}
+
+static inline
+char *string_duplicate(const char *str) {
+    CCASSERT(str);
+    size_t size = strlen(str) + 1;
+    char *dup = cc_alloc(size);
+    string_copy(dup, str, size);
+    return dup;
 }
 
 #ifdef __cplusplus

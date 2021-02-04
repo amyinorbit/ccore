@@ -25,6 +25,7 @@ STATIC
     src/filesystem.c
     src/debug.c
     src/tpool.c
+    src/cfg.c
 )
 
 # add alias so the project can be uses with add_subdirectory
