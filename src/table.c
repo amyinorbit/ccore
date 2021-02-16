@@ -42,7 +42,7 @@ void cctable_init(cctable_t *table, size_t count, bool allow_multiple) {
     table->allow_multiple = allow_multiple;
 
     for(size_t i = 0; i < table->capacity; ++i) {
-        cclist_init(&table->buckets[i]);
+        cclist_init(&table->buckets[i], offsetof(ccbucket_node_t, list_node));
     }
 }
 
@@ -131,7 +131,7 @@ static void cctable_insert_many(cctable_t *table, const char *key, void *object)
 
     memcpy(new_node->key, key, key_length);
     new_node->key[key_length] = 0;
-    cclist_init(&new_node->many_values);
+    cclist_init(&new_node->many_values, offsetof(ccbucket_value_t, list_node));
     cclist_insert_first(bucket, new_node);
     table->size += 1;
     cclist_insert_first(&new_node->many_values, value_many_new(object));

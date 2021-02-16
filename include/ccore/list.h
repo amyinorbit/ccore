@@ -24,10 +24,11 @@ typedef struct cclist_node_s {
 typedef struct cclist_s {
     size_t size;
     cclist_node_t head;
+    size_t offset;
 } cclist_t;
 
 /// Initialises a list.
-void cclist_init(cclist_t *list);
+void cclist_init(cclist_t *list, size_t offset);
 
 /// Clears [list] and calls [fn] on each item in it.
 void cclist_clear(cclist_t *list, cc_destructor fn, void *user_data);

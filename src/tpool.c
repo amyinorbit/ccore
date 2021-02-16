@@ -52,7 +52,7 @@ void ccpool_start(int num_threads) {
         pool->thread_count = num_threads;
         pool->stop = false;
         pool->in_work = 0;
-        cclist_init(&pool->tasks);
+        cclist_init(&pool->tasks, offsetof(task_t, list_node));
         pthread_mutex_init(&pool->mt, NULL);
         pthread_cond_init(&pool->cv, NULL);
         pthread_cond_init(&pool->idle_cv, NULL);

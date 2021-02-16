@@ -14,9 +14,9 @@
 #include <stdbool.h>
 
 typedef struct task_s {
-    cclist_node_t base;
     ccpool_task_t fn;
     void *refcon;
+    cclist_node_t list_node;
 } task_t;
 
 

@@ -10,29 +10,30 @@
 #include <ccore/memory.h>
 #include <ccore/log.h>
 
-static inline cclist_node_t *get_node(const void *ptr) {
-    return (cclist_node_t*)ptr;
+static inline cclist_node_t *get_node(const cclist_t *list, const void *ptr) {
+    return (cclist_node_t*)((char *)ptr + list->offset);
 }
 
-static inline void *get_ptr(const cclist_node_t *node) {
-    return (void *)node;
+static inline void *get_ptr(const cclist_t *list, const cclist_node_t *node) {
+    return (void *)((char *)node - list->offset);
 }
 
-void cclist_init(cclist_t *list) {
+void cclist_init(cclist_t *list, size_t offset) {
     CCASSERT(list);
     list->size = 0;
     list->head.next = &list->head;
     list->head.prev = &list->head;
+    list->offset = offset;
 }
 
 void cclist_clear(cclist_t *list, cc_destructor des, void *user_data) {
     CCASSERT(list);
     for(cclist_node_t *item = list->head.next; item != &list->head;) {
-        cclist_node_t *to_free = item;
+        void *to_free = get_ptr(list, item);
         item = item->next;
         if(des) des(to_free, user_data);
     }
-    cclist_init(list);
+    cclist_init(list, list->offset);
 }
 
 static inline cclist_node_t *cclist_nth_item(cclist_t *list, size_t n) {
@@ -45,7 +46,7 @@ static inline cclist_node_t *cclist_nth_item(cclist_t *list, size_t n) {
 }
 
 static void cclist_do_insert_after(cclist_t *list, void* object, cclist_node_t *node) {
-    cclist_node_t *item = object;
+    cclist_node_t *item = get_node(list, object);
 
     item->prev = node;
     item->next = node->next;
@@ -55,7 +56,7 @@ static void cclist_do_insert_after(cclist_t *list, void* object, cclist_node_t *
 }
 
 static void cclist_do_insert_before(cclist_t *list, void* object, cclist_node_t *node) {
-    cclist_node_t *item = object;
+    cclist_node_t *item = get_node(list, object);
 
     item->next = node;
     item->prev = node->prev;
@@ -83,21 +84,21 @@ void cclist_insert_last(cclist_t *list, void *object) {
 void cclist_insert_after(cclist_t *list, void *object, const void *item) {
     CCASSERT(list);
     CCASSERT(item);
-    cclist_node_t *node = get_node(item);
+    cclist_node_t *node = get_node(list, item);
     cclist_do_insert_after(list, object, node);
 }
 
 void cclist_insert_before(cclist_t *list, void *object, const void *item) {
     CCASSERT(list);
     CCASSERT(item);
-    cclist_node_t *node = get_node(item);
+    cclist_node_t *node = get_node(list, item);
     cclist_do_insert_before(list, object, node);
 }
 
 void cclist_remove(cclist_t *list, void *object) {
     CCASSERT(list);
     CCASSERT(object);
-    cclist_node_t *node = get_node(object);
+    cclist_node_t *node = get_node(list, object);
 
     node->prev->next = node->next;
     node->next->prev = node->prev;
@@ -126,23 +127,23 @@ void cclist_remove_last(cclist_t *list) {
 void *cclist_first(const cclist_t *list) {
     CCASSERT(list);
     if(list->head.next == &list->head) return NULL;
-    return get_ptr(list->head.next);
+    return get_ptr(list, list->head.next);
 }
 
 void *cclist_last(const cclist_t *list) {
     CCASSERT(list);
     if(list->head.prev == &list->head) return NULL;
-    return get_ptr(list->head.prev);
+    return get_ptr(list, list->head.prev);
 }
 
 void *cclist_next(const cclist_t *list, const void *current) {
-    cclist_node_t *node = get_node(current);
+    cclist_node_t *node = get_node(list, current);
     if(node->next == &list->head) return NULL;
-    return get_ptr(node->next);
+    return get_ptr(list, node->next);
 }
 
 void *cclist_prev(const cclist_t *list, const void *current) {
-    cclist_node_t *node = get_node(current);
+    cclist_node_t *node = get_node(list, current);
     if(node->prev == &list->head) return NULL;
-    return get_ptr(node->prev);
+    return get_ptr(list, node->prev);
 }

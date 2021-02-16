@@ -15,17 +15,17 @@ extern "C" {
 #endif
 
 typedef struct ccbucket_node_s {
-    cclist_node_t base;
     union {
         cclist_t many_values;
         void *one_value;
     };
+    cclist_node_t list_node;
     char key[];
 } ccbucket_node_t;
 
 typedef struct ccbucket_value_s {
-    cclist_node_t base;
     void *value;
+    cclist_node_t list_node;
 } ccbucket_value_t;
 
 /// A multi-valued, string-indexed hash table.
