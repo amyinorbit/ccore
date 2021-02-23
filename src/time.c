@@ -6,8 +6,8 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#if WIN32
 #include <ccore/time.h>
+#if WIN32
 #include <windows.h>
 #else /* !WIN32 */
 #include <sys/time.h>
