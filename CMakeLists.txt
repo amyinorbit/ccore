@@ -27,6 +27,7 @@ STATIC
     src/tpool.c
     src/cfg.c
     src/time.c
+    src/run_loop.c
 )
 
 # add alias so the project can be uses with add_subdirectory
