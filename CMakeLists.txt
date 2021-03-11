@@ -39,9 +39,9 @@ include(CMakePackageConfigHelpers)
 include(CPack)
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC m pthread dbghelp)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m Threads::Threads dbghelp)
 else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC m pthread)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m Threads::Threads)
 endif()
 
 # Adding the install interface generator expression makes sure that the include
