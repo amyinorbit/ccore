@@ -8,6 +8,7 @@
 //===--------------------------------------------------------------------------------------------===
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +23,7 @@ void cc_run_loop_delete(cc_run_loop_t *rl);
 
 cc_run_loop_handle_t cc_run_loop_register(
     cc_run_loop_t *rl,
-    void (*ticker)(double, void *),
+    void (*ticker)(uint64_t, void *),
     double freq,
     void *data
 );

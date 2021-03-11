@@ -20,7 +20,7 @@
 #define MAX_RLOOP_WAIT (1 * SEC)
 
 typedef struct rl_entry_t {
-    void (*main)(double, void *);
+    void (*main)(uint64_t, void *);
     void *data;
     
     uint64_t acc;
@@ -79,7 +79,7 @@ static void *loop_thread(void *data) {
         for(rl_entry_t *prog = rl->programs.next; prog != &rl->programs; prog = prog->next) {
             prog->acc -= delta;
             if(prog->acc <= 0) {
-                prog->main((double)delta/1e6, prog->data);
+                prog->main(new_t, prog->data);
                 prog->acc += prog->interval;
             }
         
@@ -149,7 +149,7 @@ void cc_run_loop_delete(cc_run_loop_t *rl) {
 
 cc_run_loop_handle_t cc_run_loop_register(
     cc_run_loop_t *rl,
-    void (*ticker)(double, void *),
+    void (*ticker)(uint64_t, void *),
     double freq,
     void *data
 ) {
