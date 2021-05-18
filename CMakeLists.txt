@@ -39,7 +39,7 @@ include(CMakePackageConfigHelpers)
 include(CPack)
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC m Threads::Threads dbghelp)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m Threads::Threads dbghelp psapi)
 else()
     target_link_libraries(${PROJECT_NAME} PUBLIC m Threads::Threads)
 endif()
