@@ -62,6 +62,17 @@ void cc_log(log_level_t level, const char *function, const char *fmt, ...) {
 //     }
 // }
 
+void cc_printf(const char *fmt, ...) {
+    pthread_mutex_lock(&stream_mutex);
+    char buffer[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    log_printer(buffer);
+    pthread_mutex_unlock(&stream_mutex);
+}
+
 void cc_print(const char *str) {
     pthread_mutex_lock(&stream_mutex);
     log_printer(str);

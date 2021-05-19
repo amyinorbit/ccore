@@ -27,7 +27,6 @@ extern "C" {
 #define CCASSERT(expr) do { \
     if(!(expr)) { \
         CCERROR("assertion `" #expr "` failed\n(%s:%03d)", __FILE__, __LINE__); \
-        cc_print_stack(); \
         abort(); \
     } \
 } while(0)
@@ -36,8 +35,6 @@ extern "C" {
 #define CCINFO(...) cc_log(LOG_INFO, __func__, __VA_ARGS__)
 #define CCWARN(...) cc_log(LOG_WARN, __func__, __VA_ARGS__)
 #define CCERROR(...) cc_log(LOG_ERROR, __func__, __VA_ARGS__)
-
-
 
 #define CCUNREACHABLE() (__builtin_unreachable())
 #define CCUNUSED(v) ((void)(v))

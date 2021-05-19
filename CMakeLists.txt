@@ -24,6 +24,7 @@ STATIC
     src/value.c
     src/filesystem.c
     src/debug.c
+    src/except.c
     src/tpool.c
     src/cfg.c
     src/time.c

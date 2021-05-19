@@ -1,11 +1,20 @@
-//===--------------------------------------------------------------------------------------------===
-// debug.c - Stack trace and other utilitiess
-//
-// Created by Amy Parent <amy@amyparent.com>
-// Copyright (c) 2020 Amy Parent
-// Licensed under the MIT License
-// =^•.•^=
-//===--------------------------------------------------------------------------------------------===
+/*
+ * CDDL HEADER START
+ *
+ * This file and its contents are supplied under the terms of the
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
+ *
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.illumos.org/license/CDDL.
+ *
+ * CDDL HEADER END
+ */
+/*
+ * Copyright 2017 Saso Kiselkov. All rights reserved.
+ */
 #include <ccore/debug.h>
 #include <ccore/math.h>
 #include <ccore/log.h>
@@ -26,17 +35,23 @@
 #include <execinfo.h>
 #endif
 
+#define	SCANF_STR_AUTOLEN_IMPL(_str_)	#_str_
+#define	SCANF_STR_AUTOLEN(_str_)	SCANF_STR_AUTOLEN_IMPL(_str_)
+#define	MAX_STACK_FRAMES	128
+#define	MAX_MODULES		1024
+#define	BACKTRACE_STR		"\nBacktrace is:\n"
+#if	defined(__GNUC__) || defined(__clang__)
+#define	BACKTRACE_STRLEN	__builtin_strlen(BACKTRACE_STR)
+#else	/* !__GNUC__ && !__clang__ */
+#define	BACKTRACE_STRLEN	strlen(BACKTRACE_STR)
+#endif	/* !__GNUC__ && !__clang__ */
+
 #if WIN32
 /*
  * Since while dumping stack we are most likely in a fairly compromised
  * state, we statically pre-allocate these buffers to try and avoid having
  * to call into the VM subsystem.
  */
-#define	SCANF_STR_AUTOLEN_IMPL(_str_)	#_str_
-#define	SCANF_STR_AUTOLEN(_str_)	SCANF_STR_AUTOLEN_IMPL(_str_)
-#define	MAX_STACK_FRAMES	128
-#define	MAX_MODULES		1024
-#define	BACKTRACE_STR		"Backtrace is:\n"
 #define	MAX_SYM_NAME_LEN	1024
 #define	MAX_BACKTRACE_LEN	(64 * 1024)
 static char backtrace_buf[MAX_BACKTRACE_LEN] = { 0 };
@@ -51,7 +66,9 @@ static MODULEINFO mi[MAX_MODULES];
 static DWORD num_modules;
 
 #define	SYMNAME_MAXLEN	1023	/* C++ symbols can be HUUUUGE */
+#endif
 
+#if WIN32
 /*
  * Given a module path in `filename' and a relative module address in `addr',
  * attempts to resolve the symbol name and relative symbol address. This is
@@ -147,7 +164,7 @@ gather_module_info(void)
 		GetModuleInformation(process, modules[i], &mi[i], sizeof (*mi));
 }
 
-void cc_print_stack() {
+void cc_print_stack(int skip_frames) {
     static unsigned frames;
 	static void *stack[MAX_STACK_FRAMES];
 	static SYMBOL_INFO *symbol;
@@ -156,7 +173,7 @@ void cc_print_stack() {
 	static IMAGEHLP_LINE64 *line;
 	static char filename[MAX_PATH];
 
-	frames = RtlCaptureStackBackTrace(1, MAX_STACK_FRAMES, stack, NULL);
+	frames = RtlCaptureStackBackTrace(skip_frames + 1, MAX_STACK_FRAMES, stack, NULL);
 
 	process = GetCurrentProcess();
     pthread_mutex_lock(&backtrace_lock);
@@ -240,21 +257,118 @@ void cc_print_stack() {
     pthread_mutex_unlock(&backtrace_lock);
 }
 
+void
+cc_print_stack_sw64(PCONTEXT ctx)
+{
+	static char filename[MAX_PATH];
+	static DWORD64 pcs[MAX_STACK_FRAMES];
+	static unsigned num_stack_frames;
+	static STACKFRAME64 sf;
+	static HANDLE process, thread;
+	static DWORD machine;
+
+	process = GetCurrentProcess();
+	thread = GetCurrentThread();
+
+    pthread_mutex_lock(&backtrace_lock);
+
+	SymInitialize(process, NULL, TRUE);
+	SymSetOptions(SYMOPT_LOAD_LINES);
+
+	gather_module_info();
+
+	memset(&sf, 0, sizeof (sf));
+	sf.AddrPC.Mode = AddrModeFlat;
+	sf.AddrStack.Mode = AddrModeFlat;
+	sf.AddrFrame.Mode = AddrModeFlat;
+#if	defined(_M_IX86)
+	machine = IMAGE_FILE_MACHINE_I386;
+	sf.AddrPC.Offset = ctx->Eip;
+	sf.AddrStack.Offset = ctx->Esp;
+	sf.AddrFrame.Offset = ctx->Ebp;
+#elif	defined(_M_X64)
+	machine = IMAGE_FILE_MACHINE_AMD64;
+	sf.AddrPC.Offset = ctx->Rip;
+	sf.AddrStack.Offset = ctx->Rsp;
+	sf.AddrFrame.Offset = ctx->Rbp;
+#elif	defined(_M_IA64)
+	machine = IMAGE_FILE_MACHINE_IA64;
+	sf.AddrPC.Offset = ctx->StIIP;
+	sf.AddrFrame.Offset = ctx->IntSp;
+	sf.AddrBStore.Offset = ctx->RsBSP;
+	sf.AddrBStore.Mode = AddrModeFlat;
+	sf.AddrStack.Offset = ctx->IntSp;
+#else
+#error	"Unsupported architecture"
+#endif	/* _M_X64 */
+
+	for (num_stack_frames = 0; num_stack_frames < MAX_STACK_FRAMES;
+	    num_stack_frames++) {
+		if (!StackWalk64(machine, process, thread, &sf, ctx, NULL,
+		    SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
+			break;
+		}
+		pcs[num_stack_frames] = sf.AddrPC.Offset;
+	}
+
+	backtrace_buf[0] = '\0';
+	string_copy(backtrace_buf, BACKTRACE_STR, sizeof (backtrace_buf));
+
+	for (unsigned i = 0; i < num_stack_frames; i++) {
+		static int fill;
+		static DWORD64 pc;
+		static char symname[SYMNAME_MAXLEN + 1];
+		static HMODULE module;
+		static DWORD64 mbase;
+
+		fill = strlen(backtrace_buf);
+		pc = pcs[i];
+
+		module = find_module((LPVOID)pc, &mbase);
+		GetModuleFileNameA(module, filename, sizeof (filename));
+		find_symbol(filename, (void *)(pc - mbase),
+		    symname, sizeof (symname));
+		fill += snprintf(&backtrace_buf[fill],
+		    sizeof (backtrace_buf) - fill,
+		    "%d %p %s+%p (%s)\n", i, (void *)pc, filename,
+		    (void *)(pc - mbase), symname);
+	}
+
+	cc_print(backtrace_buf);
+    // fputs(backtrace_buf, stderr);
+	fflush(stderr);
+	SymCleanup(process);
+
+    pthread_mutex_unlock(&backtrace_lock);
+}
+
 #else
 
-void cc_print_stack() {
-    void *addresses[MAX_STACK_DEPTH];
-    int size = backtrace(addresses, MAX_STACK_DEPTH);
-    char **symbols = backtrace_symbols(addresses, size);
-    cc_print("=== stack trace ===\n");
+void
+cc_print_stack(int skip_frames)
+{
+	static char *msg;
+	static size_t msg_len;
+	static void *trace[MAX_STACK_FRAMES];
+	static size_t i, j, sz;
+	static char **fnames;
 
-    char line[1024];
-    for(int i = 0; i < size; ++i) {
-        snprintf(line, 1024, "%02d: %s\n", i, symbols[i]);
-        cc_print(line);
-    }
-    free(symbols);
-    cc_print("\n");
+	sz = backtrace(trace, MAX_STACK_FRAMES);
+	fnames = backtrace_symbols(trace, sz);
+
+	for (i = 1 + skip_frames, msg_len = BACKTRACE_STRLEN; i < sz; i++)
+		msg_len += snprintf(NULL, 0, "%s\n", fnames[i]);
+
+	msg = (char *)malloc(msg_len + 1);
+	strcpy(msg, BACKTRACE_STR);
+	for (i = 1 + skip_frames, j = BACKTRACE_STRLEN; i < sz; i++)
+		j += sprintf(&msg[j], "%s\n", fnames[i]);
+
+	cc_print(msg);
+    // fputs(msg, stderr);
+
+	free(msg);
+	free(fnames);
 }
 
 #endif

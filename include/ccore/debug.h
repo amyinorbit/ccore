@@ -11,7 +11,13 @@
 extern "C" {
 #endif
 
-void cc_print_stack();
+#if WIN32
+#include <windows.h>
+void cc_print_stack_sw64(PCONTEXT ctx);
+#endif
+void cc_print_stack(int skip_frames);
+void cc_except_init(void);
+void cc_except_fini(void);
 
 #ifdef __cplusplus
 } /* extern "C" */
