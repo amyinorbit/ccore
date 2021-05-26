@@ -54,6 +54,8 @@ static inline double lerp_f64(double a, double b, double t) { return a*(1.0-t) +
 /// Clamps [v] to the range [hi, lo]
 #define cc_clamp(v, a, b) _Generic((v), uint32_t: clamp_u32, int32_t: clamp_i32, float: clamp_f32, double: clamp_f64)(v, a, b)
 
+#ifndef __cplusplus
+
 typedef union {
     struct { double x, y; };
     double data[2];
@@ -74,6 +76,8 @@ typedef union {
 #define CC_VEC3_NULL CC_VEC3(NAN, NAN, NAN)
 
 #define CC_VEC_IS_NULL(v) (isnan((v).x))
+
+
 
 unsigned vec3_int_sph(vec3_t o, vec3_t v, vec3_t c, double r, bool confined, vec3_t out[2]);
 vec2_t vec2_int_vec2(vec2_t o1, vec2_t v1, vec2_t o2, vec2_t v2);
@@ -184,6 +188,19 @@ static inline vec2_t vec2_lerp(vec2_t a, vec2_t b, double t) {
 static inline double vec2_angle(vec2_t a, vec2_t b) {
     return acos(vec2_dot(a, b) / (vec2_mag(a) * vec2_mag(b)));
 }
+
+#else
+typedef union {
+    struct v { double x, y; };
+    double data[2];
+} vec2_t;
+
+typedef union {
+    vec2_t xy;
+    struct v { double x, y, z; };
+    double data[3];
+} vec3_t;
+#endif
 
 
 #ifdef __cplusplus
