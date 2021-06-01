@@ -15,6 +15,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #define CC_CFG_DEFAULT_CAPACITY (32)
 
@@ -296,10 +297,17 @@ void cc_cfg_delete(cc_cfg_t *cfg) {
     cc_free(cfg);
 }
 
-bool cc_cfg_get_bool(const cc_cfg_t *cfg, const char *key, bool *out) {
+bool cc_cfg_get_bool(const cc_cfg_t *cfg, bool *out, const char *fmt, ...) {
     CCASSERT(cfg);
-    CCASSERT(key);
+    CCASSERT(fmt);
     CCASSERT(out);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
     const cc_cfg_entry_t *entry = find_entry(cfg, key);
     if(!entry) return false;
     switch(entry->kind) {
@@ -311,10 +319,17 @@ bool cc_cfg_get_bool(const cc_cfg_t *cfg, const char *key, bool *out) {
     return true;
 }
 
-bool cc_cfg_get_int(const cc_cfg_t *cfg, const char *key, int *out) {
+bool cc_cfg_get_int(const cc_cfg_t *cfg, int *out, const char *fmt, ...) {
     CCASSERT(cfg);
-    CCASSERT(key);
+    CCASSERT(fmt);
     CCASSERT(out);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
     const cc_cfg_entry_t *entry = find_entry(cfg, key);
     if(!entry) return false;
     if(entry->kind != CFG_NUM) return false;
@@ -322,10 +337,17 @@ bool cc_cfg_get_int(const cc_cfg_t *cfg, const char *key, int *out) {
     return true;
 }
 
-bool cc_cfg_get_float(const cc_cfg_t *cfg, const char *key, float *out) {
+bool cc_cfg_get_float(const cc_cfg_t *cfg, float *out, const char *fmt, ...) {
     CCASSERT(cfg);
-    CCASSERT(key);
+    CCASSERT(fmt);
     CCASSERT(out);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
     const cc_cfg_entry_t *entry = find_entry(cfg, key);
     if(!entry) return false;
     if(entry->kind != CFG_NUM) return false;
@@ -334,10 +356,17 @@ bool cc_cfg_get_float(const cc_cfg_t *cfg, const char *key, float *out) {
 
 }
 
-bool cc_cfg_get_double(const cc_cfg_t *cfg, const char *key, double *out) {
+bool cc_cfg_get_double(const cc_cfg_t *cfg, double *out, const char *fmt, ...) {
     CCASSERT(cfg);
-    CCASSERT(key);
+    CCASSERT(fmt);
     CCASSERT(out);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
     const cc_cfg_entry_t *entry = find_entry(cfg, key);
     if(!entry) return false;
     if(entry->kind != CFG_NUM) return false;
@@ -345,10 +374,17 @@ bool cc_cfg_get_double(const cc_cfg_t *cfg, const char *key, double *out) {
     return true;
 }
 
-bool cc_cfg_get_str(const cc_cfg_t *cfg, const char *key, const char **out) {
+bool cc_cfg_get_str(const cc_cfg_t *cfg, const char **out, const char *fmt, ...) {
     CCASSERT(cfg);
-    CCASSERT(key);
+    CCASSERT(fmt);
     CCASSERT(out);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
     const cc_cfg_entry_t *entry = find_entry(cfg, key);
     if(!entry) return false;
     if(entry->kind != CFG_STR) return false;

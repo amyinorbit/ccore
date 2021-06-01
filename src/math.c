@@ -65,7 +65,7 @@ vec2_t vec2_int_vec2(vec2_t a, vec2_t u, vec2_t b, vec2_t v) {
 
     double ta = vec2_pdot(w, v)/vec2_pdot(u, v);
     double tb = vec2_pdot(mw, u)/vec2_pdot(v, u);
-    
+    // TODO: replace with more lenient intercept logic
     if(ta < 0 || ta > 1.0 || tb < 0 || tb > 1.0) return CC_VEC2_NULL;
 
     vec2_t i1 = vec2_add(a, vec2_mul(u, ta));
