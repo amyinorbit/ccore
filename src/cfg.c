@@ -297,6 +297,19 @@ void cc_cfg_delete(cc_cfg_t *cfg) {
     cc_free(cfg);
 }
 
+bool cc_cfg_key_exists(const cc_cfg_t *cfg, const char *fmt, ...) {
+    CCASSERT(cfg);
+    CCASSERT(fmt);
+    
+    char key[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(key, sizeof(key), fmt, args);
+    va_end(args);
+    
+    return find_entry(cfg, key) != NULL;
+}
+
 bool cc_cfg_get_bool(const cc_cfg_t *cfg, bool *out, const char *fmt, ...) {
     CCASSERT(cfg);
     CCASSERT(fmt);

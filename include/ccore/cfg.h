@@ -19,6 +19,7 @@ typedef struct cc_cfg_s cc_cfg_t;
 cc_cfg_t *cc_cfg_load(const char *path);
 void cc_cfg_delete(cc_cfg_t *cfg);
 
+bool cc_cfg_key_exists(const cc_cfg_t *cfg, const char *fmt, ...);
 bool cc_cfg_get_bool(const cc_cfg_t *cfg, bool *out, const char *fmt, ...);
 bool cc_cfg_get_int(const cc_cfg_t *cfg, int *out, const char *fmt, ...);
 bool cc_cfg_get_float(const cc_cfg_t *cfg, float *out, const char *fmt, ...);
