@@ -21,6 +21,7 @@ extern "C" {
 /// which means it can be passed as value pretty much anywhere we're running on 64-bit platroms.
 typedef struct ccmsg_s {
     uint8_t kind;
+    uint16_t origin;
     union {
         int64_t i64;
         uint64_t u64;
